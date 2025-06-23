@@ -47,21 +47,29 @@ class OrderController extends Controller
     public function index_order(){
         $user = Auth::user();
         $is_admin = Auth::user()->is_admin;
+        
         if($is_admin){
-            $orders = Order::all();
+            $orders = Order::with(['user', 'transactions.product'])
+                        ->orderBy('created_at', 'desc')
+                        ->get();
         } else {
-            $orders = Order::where('user_id', $user->id);
+            $orders = Order::with(['user', 'transactions.product'])
+                        ->where('user_id', $user->id)
+                        ->orderBy('created_at', 'desc')  
+                        ->get();
         }
         
-        return view('index_order', compact('orders'));
+        return view('user.index_order', compact('orders')); 
     }
 
     public function show_order(Order $order){
         $user = Auth::user();
         $is_admin = Auth::user()->is_admin;
 
+        $order->load(['user', 'transactions.product']);
+
         if ($is_admin || $order->user_id == $user->id){
-            return view('show_order', compact('order'));
+            return view('user.show_order', compact('order'));
         }
 
         return Redirect::route('index_order');

@@ -18,9 +18,14 @@ class Admin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check() || Auth::user()->is_admin == false) {
-            return Redirect::route('index_product');
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
+        
+        if (Auth::user()->is_admin == false) {
+            return Redirect::route('index_product')->with('error', 'Akses ditolak! Halaman khusus admin.');
+        }
+        
         return $next($request);
     }
 }

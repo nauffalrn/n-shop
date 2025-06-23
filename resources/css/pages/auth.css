@@ -1,0 +1,96 @@
+/* Authentication Pages Styles */
+.auth-container {
+    background: var(--accent-color);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.auth-card {
+    box-shadow: 0 10px 40px rgba(19, 62, 135, 0.15);
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--white);
+    border: 2px solid var(--light-color);
+}
+
+.auth-card .card-body {
+    background: var(--white);
+    padding: 3rem;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header i {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.auth-header h3 {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.auth-form .form-control {
+    border-radius: 12px;
+    border: 2px solid var(--light-color);
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+    background: var(--white);
+}
+
+.auth-form .form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(96, 139, 193, 0.25);
+}
+
+.auth-form .input-group .btn {
+    border: 2px solid var(--light-color);
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    background: var(--accent-color);
+    color: var(--primary-color);
+}
+
+.auth-form .input-group .btn:hover {
+    background: var(--secondary-color);
+    color: var(--white);
+    border-color: var(--secondary-color);
+}
+
+.password-strength {
+    margin-top: 8px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: rgba(96, 139, 193, 0.1);
+}
+
+.password-strength small {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-label {
+    color: var(--dark-color);
+    font-weight: 500;
+}
+
+/* Links */
+.auth-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.auth-link:hover {
+    color: var(--secondary-color);
+}

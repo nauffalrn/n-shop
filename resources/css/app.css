@@ -1,0 +1,388 @@
+/* Import component styles */
+@import "components/product-detail.css";
+@import "components/edit-product.css";
+@import "components/drag-drop.css";
+
+/* Import page styles */
+@import "pages/auth.css";
+@import "pages/profile.css";
+@import "pages/cart.css";
+
+/* Global Variables - Updated Color Palette */
+:root {
+    --primary-color: #133e87; /* Navy Blue - untuk navbar, buttons utama */
+    --secondary-color: #608bc1; /* Light Blue - untuk accents, hover states */
+    --accent-color: #f3f3e0; /* Cream/Off-white - untuk backgrounds */
+    --light-color: #cbdceb; /* Light Blue Gray - untuk cards, sections */
+    --dark-color: #2c3e50; /* Dark text */
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --white: #ffffff;
+}
+
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: var(--accent-color); /* Changed to cream background */
+    color: var(--dark-color);
+    line-height: 1.6;
+}
+
+/* Custom Card Styles */
+.card-custom {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(19, 62, 135, 0.1); /* Blue shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: var(--white);
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(19, 62, 135, 0.15);
+}
+
+/* Navbar Styles - Solid Navy Blue */
+.navbar-custom {
+    background: var(--primary-color); /* Solid navy blue, no gradient */
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(19, 62, 135, 0.2);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: var(--white) !important;
+}
+
+.navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    margin: 0 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--white) !important;
+}
+
+/* Search Bar */
+.search-container {
+    min-width: 300px;
+}
+
+.search-input {
+    border-radius: 25px 0 0 25px;
+    border: 2px solid var(--light-color);
+    padding: 12px 20px;
+    background: var(--white);
+}
+
+.search-input:focus {
+    box-shadow: none;
+    border-color: var(--secondary-color);
+    outline: none;
+}
+
+/* Button Styles - Solid Colors */
+.btn-primary {
+    background: var(--primary-color); /* Solid navy blue */
+    border: 2px solid var(--primary-color);
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(96, 139, 193, 0.4);
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    background: transparent;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* Footer */
+.footer-custom {
+    background: var(--primary-color); /* Solid navy blue */
+    color: var(--white);
+    padding: 3rem 0 1rem;
+    margin-top: 4rem;
+}
+
+.footer-custom h5,
+.footer-custom h6 {
+    color: var(--white);
+    font-weight: 600;
+}
+
+.footer-custom .text-white-50:hover {
+    color: var(--white) !important;
+    transition: color 0.3s ease;
+}
+
+/* Hero Section */
+.hero-section {
+    background: var(--light-color); /* Light blue-gray background */
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    padding: 3rem 2rem;
+}
+
+.hero-section h1 {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.hero-section p {
+    color: var(--dark-color);
+    opacity: 0.8;
+}
+
+/* Product Cards */
+.product-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    background: var(--white);
+    box-shadow: 0 2px 10px rgba(19, 62, 135, 0.1);
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(19, 62, 135, 0.15);
+}
+
+.product-image {
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.05);
+}
+
+/* Wishlist Button */
+.wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid var(--light-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.wishlist-btn:hover {
+    background: var(--white);
+    border-color: var(--secondary-color);
+    transform: scale(1.1);
+}
+
+.wishlist-btn i.text-danger {
+    color: var(--danger-color) !important;
+}
+
+/* Filter Sidebar */
+.filter-sidebar {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(19, 62, 135, 0.1);
+}
+
+.filter-sidebar h5 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Category Pills */
+.category-item {
+    background: var(--light-color);
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    text-decoration: none;
+    display: inline-block;
+    margin: 0.25rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.category-item:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+}
+
+/* Price Display */
+.product-price {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+/* Stock Badge */
+.stock-badge {
+    background: var(--secondary-color);
+    color: var(--white);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Auth Styles */
+.auth-card {
+    box-shadow: 0 10px 40px rgba(19, 62, 135, 0.1);
+    border: none;
+    border-radius: 20px;
+    background: var(--white);
+}
+
+.auth-card .card-body {
+    background: var(--white);
+}
+
+.password-strength {
+    margin-top: 5px;
+}
+
+.password-strength small {
+    font-size: 0.8rem;
+}
+
+/* Form Controls */
+.form-control {
+    border: 2px solid var(--light-color);
+    border-radius: 12px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(96, 139, 193, 0.25);
+}
+
+/* Badges */
+.badge {
+    border-radius: 15px;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-secondary {
+    background-color: var(--secondary-color) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-secondary {
+    color: var(--secondary-color) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar-logo {
+        height: 35px;
+    }
+
+    .brand-text {
+        font-size: 1.5rem;
+    }
+
+    .search-form {
+        margin-top: 1rem;
+        max-width: 100%;
+    }
+
+    .product-main-image {
+        height: 300px;
+    }
+
+    .product-title {
+        font-size: 1.5rem;
+    }
+
+    .product-price h2 {
+        font-size: 2rem;
+    }
+
+    .thumbnail-nav {
+        height: 60px;
+    }
+
+    .variant-option {
+        padding: 12px;
+    }
+
+    .hero-section {
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+
+    .search-container {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .product-main-image {
+        height: 250px;
+    }
+
+    .product-title {
+        font-size: 1.3rem;
+    }
+
+    .product-price h2 {
+        font-size: 1.8rem;
+    }
+
+    .product-image {
+        height: 150px;
+    }
+
+    .hero-section {
+        padding: 1.5rem 1rem;
+    }
+}
