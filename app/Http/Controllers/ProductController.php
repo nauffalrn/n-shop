@@ -184,8 +184,39 @@ class ProductController extends Controller
     
     // Method untuk filter berdasarkan kategori
     public function by_category(Category $category) {
-        $products = Product::where('category_id', $category->id)->paginate(12);
-        $categories = Category::withCount('products')->get(); // ✅ Tambah withCount
-        return view('products.index_product', compact('products', 'categories', 'category')); // Fixed
+        // Build query dengan filter kategori
+        $query = Product::where('category_id', $category->id);
+        
+        // Apply additional filters if exist
+        if (request('min_price')) {
+            $query->where('price', '>=', request('min_price'));
+        }
+        
+        if (request('max_price')) {
+            $query->where('price', '<=', request('max_price'));
+        }
+        
+        // Apply sorting
+        switch (request('sort')) {
+            case 'price_low':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'rating':
+                $query->orderBy('rating', 'desc');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy('id', 'desc');
+        }
+        
+        $products = $query->paginate(12);
+        $categories = Category::withCount('products')->get();
+        
+        return view('products.index_product', compact('products', 'categories', 'category'));
     }
 }

@@ -23,23 +23,40 @@
 <body data-page="@yield('page-identifier', 'default')" class="@yield('body-class')">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('index_product') }}">
-                <i class="fas fa-shopping-bag me-2"></i>N-Shop
-            </a>
+        <div class="container-fluid px-4">
+            <!-- Left Side: Logo + Extended Search -->
+            <div class="d-flex align-items-center flex-grow-1 me-4">
+                <!-- Logo -->
+                <a class="navbar-brand me-4" href="{{ route('index_product') }}">
+                    <i class="fas fa-shopping-bag me-2"></i>N-Shop
+                </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <!-- Extended Search Bar -->
+                <div class="search-container-extended">
+                    <form action="{{ route('index_product') }}" method="GET" class="d-flex">
+                        <input type="text" name="search" class="search-input-extended" 
+                               placeholder="Cari produk..." value="{{ request('search') }}">
+                        <button class="btn btn-search" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
+            <!-- Right Side: Navigation Links -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Search Bar -->
-                <div class="mx-auto d-none d-lg-block">
-                    <form action="{{ route('index_product') }}" method="GET" class="search-container">
+                <!-- Mobile Search -->
+                <div class="d-lg-none mb-3 mt-2">
+                    <form action="{{ route('index_product') }}" method="GET">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control search-input" 
                                    placeholder="Cari produk..." value="{{ request('search') }}">
-                            <button class="btn btn-primary" type="submit">
+                            <button class="btn btn-search" type="submit">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
@@ -72,9 +89,6 @@
                             <li class="nav-item">
                                 <a class="nav-link position-relative" href="{{ route('wishlist.index') }}">
                                     <i class="fas fa-heart me-1"></i>Wishlist
-                                    @if(auth()->user()->wishlists->count() > 0)
-                                        <span class="badge bg-danger">{{ auth()->user()->wishlists->count() }}</span>
-                                    @endif
                                 </a>
                             </li>
                         @endif
@@ -170,7 +184,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main style="margin-top: 100px; min-height: calc(100vh - 200px);">
+    <main style="margin-top: 40px; min-height: calc(100vh - 200px);">
         <!-- Alert Messages -->
         @if(session('success'))
             <div class="container mt-3">

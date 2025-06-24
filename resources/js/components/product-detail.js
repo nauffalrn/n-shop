@@ -1,6 +1,7 @@
 class ProductDetail {
     constructor() {
         this.currentImageIndex = 0;
+        this.productImages = [];
         this.selectedVariant = null;
         this.init();
     }
@@ -10,100 +11,87 @@ class ProductDetail {
         this.initImageGallery();
         this.initVariantSelection();
         this.initAddToCart();
+        this.initTouchGestures();
     }
 
     bindEvents() {
-        // Global functions for blade templates
-        window.changeMainImage = (imageUrl, index) =>
-            this.changeMainImage(imageUrl, index);
-    }
+        // Bind navigation buttons
+        $(document).on("click", ".prev-btn", () => this.prevImage());
+        $(document).on("click", ".next-btn", () => this.nextImage());
 
-    initImageGallery() {
-        // Initialize thumbnail navigation
-        const thumbnails = document.querySelectorAll(".thumbnail-item");
-
-        thumbnails.forEach((thumb, index) => {
-            thumb.addEventListener("click", () => {
-                const img = thumb.querySelector("img");
-                if (img) {
-                    this.changeMainImage(img.src, index);
-                }
-            });
+        // Bind thumbnail clicks
+        $(document).on("click", ".thumbnail-nav", (e) => {
+            const index = $(e.target).data("index");
+            if (index !== undefined) {
+                this.changeMainImage(e.target.src, index);
+            }
         });
 
-        // Initialize keyboard navigation
-        document.addEventListener("keydown", (e) => {
+        // Keyboard navigation
+        $(document).on("keydown", (e) => {
             if (e.key === "ArrowLeft") {
                 this.prevImage();
             } else if (e.key === "ArrowRight") {
                 this.nextImage();
             }
         });
+    }
 
-        // Initialize touch/swipe gestures
-        this.initTouchGestures();
+    initImageGallery() {
+        // Collect all thumbnail images
+        this.productImages = $(".thumbnail-nav").toArray();
+
+        // Add data-index to thumbnails
+        this.productImages.forEach((img, index) => {
+            $(img).attr("data-index", index);
+        });
+
+        // Set initial active thumbnail
+        if (this.productImages.length > 0) {
+            $(this.productImages[0]).addClass("active-thumb");
+        }
     }
 
     changeMainImage(imageUrl, index) {
         const mainImage = document.getElementById("mainImage");
-        if (!mainImage) return;
-
-        // Update main image with fade effect
-        mainImage.style.opacity = "0.7";
-
-        setTimeout(() => {
+        if (mainImage) {
             mainImage.src = imageUrl;
-            mainImage.style.opacity = "1";
-        }, 150);
+            this.currentImageIndex = index;
 
-        // Update active thumbnail
-        document.querySelectorAll(".thumbnail-item").forEach((item) => {
-            item.classList.remove("active");
-        });
-
-        const thumbnails = document.querySelectorAll(".thumbnail-item");
-        if (thumbnails[index]) {
-            thumbnails[index].classList.add("active");
+            // Update active thumbnail
+            $(".thumbnail-nav").removeClass("active-thumb");
+            $(this.productImages[index]).addClass("active-thumb");
         }
-
-        this.currentImageIndex = index;
     }
 
     prevImage() {
-        const thumbnails = document.querySelectorAll(".thumbnail-item");
-        if (thumbnails.length === 0) return;
+        if (this.productImages.length === 0) return;
 
         const prevIndex =
             this.currentImageIndex > 0
                 ? this.currentImageIndex - 1
-                : thumbnails.length - 1;
+                : this.productImages.length - 1;
 
-        const prevThumb = thumbnails[prevIndex];
-        const img = prevThumb.querySelector("img");
-        if (img) {
-            this.changeMainImage(img.src, prevIndex);
-        }
+        const prevImg = this.productImages[prevIndex];
+        this.changeMainImage(prevImg.src, prevIndex);
     }
 
     nextImage() {
-        const thumbnails = document.querySelectorAll(".thumbnail-item");
-        if (thumbnails.length === 0) return;
+        if (this.productImages.length === 0) return;
 
         const nextIndex =
-            this.currentImageIndex < thumbnails.length - 1
+            this.currentImageIndex < this.productImages.length - 1
                 ? this.currentImageIndex + 1
                 : 0;
 
-        const nextThumb = thumbnails[nextIndex];
-        const img = nextThumb.querySelector("img");
-        if (img) {
-            this.changeMainImage(img.src, nextIndex);
-        }
+        const nextImg = this.productImages[nextIndex];
+        this.changeMainImage(nextImg.src, nextIndex);
     }
 
     initTouchGestures() {
-        const mainImageContainer =
-            document.getElementById("mainImageContainer");
+        const mainImageContainer = document.querySelector(
+            ".main-image-container"
+        );
         if (!mainImageContainer) return;
 
         let startX = 0;
@@ -167,9 +155,6 @@ class ProductDetail {
 
         // Add active class to selected variant
         selectedInput.closest(".form-check").classList.add("variant-selected");
-
-        // You can add price updates here if variants have different prices
-        // this.updatePrice(selectedInput.dataset.price);
     }
 
     initAddToCart() {
@@ -355,9 +340,6 @@ window.ProductDetailComponent = {
 
         // Variant selection
         $(".variant-option").on("click", this.handleVariantSelection);
-
-        // Quantity controls
-        $(".qty-btn").on("click", this.handleQuantityChange);
     },
 
     handleThumbnailClick: function () {
@@ -382,20 +364,6 @@ window.ProductDetailComponent = {
 
         // Update stock info
         $(".stock-info").text(stock + " tersedia");
-    },
-
-    handleQuantityChange: function () {
-        const action = $(this).data("action");
-        const input = $(this).closest(".input-group").find(".qty-input");
-        const currentVal = parseInt(input.val());
-        const max = parseInt(input.attr("max"));
-        const min = parseInt(input.attr("min")) || 1;
-
-        if (action === "increase" && currentVal < max) {
-            input.val(currentVal + 1);
-        } else if (action === "decrease" && currentVal > min) {
-            input.val(currentVal - 1);
-        }
     },
 
     initImageGallery: function () {

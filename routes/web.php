@@ -78,7 +78,7 @@ Route::middleware(['auth', 'Admin'])->prefix('admin')->group(function () {
     // Product Management
     Route::get('/product/create', [ProductController::class, 'create_product'])->name('admin.create_product');
     Route::post('/product', [ProductController::class, 'store_product'])->name('admin.store_product');
-    Route::get('/product/{product}/edit', [ProductController::class, 'edit_prpoduct'])->name('admin.edit_product');
+    Route::get('/product/{product}/edit', [ProductController::class, 'edit_product'])->name('admin.edit_product'); 
     Route::patch('/product/{product}', [ProductController::class, 'update_product'])->name('admin.update_product');
     Route::delete('/product/{product}', [ProductController::class, 'delete_product'])->name('admin.delete_product');
     

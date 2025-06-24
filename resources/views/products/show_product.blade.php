@@ -1,11 +1,12 @@
 @extends('layouts.app')
 
 @section('title', $product->name . ' - N-Shop')
+@section('body-class', 'product-detail-page') <!-- Tambah class khusus -->
 
 @section('content')
-<div class="container">
+<div class="container"> <!-- Tetap pakai container biasa -->
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
+    <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('index_product') }}">Home</a></li>
             @if($product->category)
@@ -17,68 +18,81 @@
         </ol>
     </nav>
 
-    <div class="row">
+    <div class="row g-3">
         <!-- Product Images -->
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-5 mb-3">
             <div class="card card-custom">
-                <div class="card-body p-0">
-                    @if($product->images && count($product->images) > 0)
+                <div class="card-body p-0 mt-0">
+                    <!-- Product Gallery -->
+                    <div class="product-gallery">
                         <!-- Main Image -->
-                        <div id="productImageCarousel" class="carousel slide" data-bs-ride="carousel">
-                            <div class="carousel-inner">
-                                @foreach($product->images as $index => $image)
-                                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                                        <img src="{{ Storage::url($image) }}" class="d-block w-100" 
-                                             style="height: 400px; object-fit: cover; border-radius: 15px;" 
-                                             alt="{{ $product->name }}">
-                                    </div>
-                                @endforeach
-                            </div>
+                        <div class="main-image-container">
+                            @if($product->images && count($product->images) > 0)
+                                <img src="{{ Storage::url($product->images[0]) }}" 
+                                     class="product-main-image" 
+                                     alt="{{ $product->name }}" 
+                                     id="mainImage">
+                            @else
+                                <div class="product-main-image d-flex align-items-center justify-content-center bg-light">
+                                    <i class="fas fa-image fa-4x text-muted"></i>
+                                </div>
+                            @endif
                             
-                            @if(count($product->images) > 1)
-                                <button class="carousel-control-prev" type="button" data-bs-target="#productImageCarousel" data-bs-slide="prev">
-                                    <span class="carousel-control-prev-icon"></span>
+                            <!-- Navigation Arrows -->
+                            @if($product->images && count($product->images) > 1)
+                                <button class="image-nav-btn prev-btn" onclick="prevImage()">
+                                    <i class="fas fa-chevron-left"></i>
                                 </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#productImageCarousel" data-bs-slide="next">
-                                    <span class="carousel-control-next-icon"></span>
+                                <button class="image-nav-btn next-btn" onclick="nextImage()">
+                                    <i class="fas fa-chevron-right"></i>
                                 </button>
                             @endif
                         </div>
 
-                        <!-- Thumbnail Images -->
-                        @if(count($product->images) > 1)
-                            <div class="row g-2 mt-3 px-3">
+                        <!-- Thumbnail Gallery - Full Width -->
+                        @if($product->images && count($product->images) > 1)
+                            <div class="thumbnail-container">
                                 @foreach($product->images as $index => $image)
-                                    <div class="col-3">
-                                        <img src="{{ Storage::url($image) }}" 
-                                             class="img-thumbnail cursor-pointer thumbnail-img {{ $index === 0 ? 'active' : '' }}" 
-                                             data-bs-target="#productImageCarousel" 
-                                             data-bs-slide-to="{{ $index }}"
-                                             style="height: 80px; width: 100%; object-fit: cover;">
-                                    </div>
+                                    <img src="{{ Storage::url($image) }}" 
+                                         class="thumbnail-nav {{ $index === 0 ? 'active-thumb' : '' }}" 
+                                         alt="{{ $product->name }}"
+                                         data-index="{{ $index }}">
                                 @endforeach
                             </div>
                         @endif
-                    @else
-                        <div class="d-flex align-items-center justify-content-center bg-light" 
-                             style="height: 400px; border-radius: 15px;">
-                            <i class="fas fa-image fa-4x text-muted"></i>
-                        </div>
-                    @endif
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Product Info -->
-        <div class="col-lg-6">
+        <div class="col-lg-7">
             <div class="card card-custom">
                 <div class="card-body">
-                    <!-- Product Name & Category -->
+                    <!-- Product Name & Category dengan Wishlist -->
                     <div class="mb-3">
                         @if($product->category)
-                            <span class="badge badge-custom mb-2">{{ $product->category->name }}</span>
+                            <a href="{{ route('product.by_category', $product->category) }}" 
+                               class="badge bg-primary mb-2 text-decoration-none category-badge-link">
+                                <i class="fas fa-tag me-1"></i>{{ $product->category->name }}
+                            </a>
                         @endif
-                        <h2 class="mb-0">{{ $product->name }}</h2>
+                        
+                        <!-- Nama Produk dan Wishlist sejajar -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="mb-0 text-primary">{{ $product->name }}</h2>
+                            
+                            <!-- Wishlist Button - Bentuk Lama -->
+                            @auth
+                                @if(!auth()->user()->is_admin)
+                                    @php $isWishlisted = auth()->user()->wishlists->where('product_id', $product->id)->count() > 0; @endphp
+                                    <button type="button" class="wishlist-btn {{ $isWishlisted ? 'active' : '' }}" 
+                                            data-product-id="{{ $product->id }}">
+                                        <i class="fas fa-heart {{ $isWishlisted ? 'text-danger' : 'text-muted' }}"></i>
+                                    </button>
+                                @endif
+                            @endauth
+                        </div>
                     </div>
 
                     <!-- Rating -->
@@ -169,7 +183,7 @@
                     <div class="mb-4">
                         <div class="row">
                             <div class="col-6">
-                                <strong>Stok: </strong>
+                                <span>Stok: </span> <!-- Hapus strong/bold -->
                                 <span id="stockInfo">
                                     @if($product->stock > 0)
                                         <span class="text-success">{{ $product->stock }} tersedia</span>
@@ -180,79 +194,62 @@
                             </div>
                             @if($product->weight)
                                 <div class="col-6">
-                                    <strong>Berat: </strong>{{ $product->weight }} gram
+                                    <span>Berat: </span>{{ $product->weight }} gram <!-- Hapus strong/bold -->
                                 </div>
                             @endif
                         </div>
                     </div>
 
-                    <!-- Add to Cart Form -->
+                    <!-- Add to Cart Form dengan Quantity Control -->
                     @auth
-                        <form action="{{ route('add_to_cart', $product) }}" method="POST" id="addToCartForm">
-                            @csrf
-                            
-                            @php
-                                $selectedVariant = null;
-                                $finalPrice = $product->price;
-                                $finalStock = $product->stock;
+                        @if(!auth()->user()->is_admin)
+                            <form action="{{ route('add_to_cart', $product) }}" method="POST" id="addToCartForm">
+                                @csrf
                                 
-                                if((request('size') || request('color')) && $product->hasVariants()) {
-                                    $selectedVariant = $product->variants->where('size', request('size'))->where('color', request('color'))->first();
-                                    if($selectedVariant) {
-                                        $finalPrice = $selectedVariant->price;
-                                        $finalStock = $selectedVariant->stock;
+                                @php
+                                    $selectedVariant = null;
+                                    $finalPrice = $product->price;
+                                    $finalStock = $product->stock;
+                                    
+                                    if((request('size') || request('color')) && $product->hasVariants()) {
+                                        $selectedVariant = $product->variants->where('size', request('size'))->where('color', request('color'))->first();
+                                        if($selectedVariant) {
+                                            $finalPrice = $selectedVariant->price;
+                                            $finalStock = $selectedVariant->stock;
+                                        }
                                     }
-                                }
-                            @endphp
-                            
-                            @if($selectedVariant)
-                                <input type="hidden" name="product_variant_id" value="{{ $selectedVariant->id }}">
-                            @endif
-                            
-                            <div class="row mb-3">
-                                <div class="col-4">
-                                    <label class="form-label">Jumlah:</label>
-                                    <input type="number" name="amount" class="form-control" value="1" min="1" 
-                                           max="{{ $finalStock }}" required>
-                                </div>
-                            </div>
-
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary btn-lg" 
-                                        {{ $finalStock <= 0 ? 'disabled' : '' }}>
-                                    <i class="fas fa-cart-plus me-2"></i>
-                                    {{ $finalStock <= 0 ? 'Stok Habis' : 'Tambah ke Keranjang' }}
-                                </button>
+                                @endphp
                                 
-                                <!-- Wishlist Button -->
-                                @php $isWishlisted = auth()->user()->wishlists->where('product_id', $product->id)->count() > 0; @endphp
-                                <button type="button" class="btn btn-outline-primary wishlist-btn" 
-                                        data-product-id="{{ $product->id }}">
-                                    <i class="fas fa-heart {{ $isWishlisted ? 'text-danger' : '' }}"></i>
-                                    <span class="ms-2">
-                                        {{ $isWishlisted ? 'Hapus dari Wishlist' : 'Tambah ke Wishlist' }}
-                                    </span>
-                                </button>
-                            </div>
-                        </form>
-                            
-                        <!-- Show Price and Stock Info -->
-                        <div class="mt-3">
-                            <div class="row">
-                                <div class="col-6">
-                                    <strong>Harga: </strong>
-                                    <span class="text-primary fs-5">Rp {{ number_format($finalPrice, 0, ',', '.') }}</span>
+                                @if($selectedVariant)
+                                    <input type="hidden" name="product_variant_id" value="{{ $selectedVariant->id }}">
+                                @endif
+                                
+                                <!-- Quantity Controls Sejajar dengan Label -->
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <label class="form-label fw-semibold mb-0">Jumlah:</label>
+                                        <div class="quantity-controls">
+                                            <button type="button" class="qty-btn qty-decrease">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                            <input type="number" name="amount" id="quantityInput" class="qty-input" 
+                                                   value="1" min="1" max="{{ $finalStock }}">
+                                            <button type="button" class="qty-btn qty-increase">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <strong>Stok: </strong>
-                                    @if($finalStock > 0)
-                                        <span class="text-success">{{ $finalStock }} tersedia</span>
-                                    @else
-                                        <span class="text-danger">Stok habis</span>
-                                    @endif
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg" 
+                                            {{ $finalStock <= 0 ? 'disabled' : '' }}>
+                                        <i class="fas fa-cart-plus me-2"></i>
+                                        {{ $finalStock <= 0 ? 'Stok Habis' : 'Tambah ke Keranjang' }}
+                                    </button>
                                 </div>
-                            </div>
-                        </div>
+                            </form>
+                        @endif
                     @else
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
@@ -398,30 +395,6 @@
 
 @push('scripts')
 <script>
-$(document).ready(function() {
-    console.log('Product detail page loaded');
-    
-    // Simple wishlist toggle
-    $('.wishlist-btn').on('click', function() {
-        var productId = $(this).data('product-id');
-        var btn = $(this);
-        
-        $.post('/wishlist/' + productId + '/toggle', {
-            _token: $('meta[name="csrf-token"]').attr('content')
-        })
-        .done(function(response) {
-            if(response.status === 'added') {
-                btn.find('i').addClass('text-danger');
-                btn.find('span').text('Hapus dari Wishlist');
-            } else {
-                btn.find('i').removeClass('text-danger');
-                btn.find('span').text('Tambah ke Wishlist');
-            }
-        })
-        .fail(function() {
-            alert('Terjadi kesalahan. Silakan coba lagi.');
-        });
-    });
-});
+// Cukup biarkan kosong, script akan dimuat dari file terpisah
 </script>
 @endpush

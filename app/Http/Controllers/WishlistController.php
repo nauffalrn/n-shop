@@ -35,25 +35,21 @@ class WishlistController extends Controller
         
         if($wishlist) {
             $wishlist->delete();
-            $message = 'Produk dihapus dari wishlist!';
             $status = 'removed';
+            $message = 'Produk dihapus dari wishlist!';
         } else {
             Wishlist::create([
                 'user_id' => $user_id,
                 'product_id' => $product->id
             ]);
-            $message = 'Produk ditambahkan ke wishlist!';
             $status = 'added';
+            $message = 'Produk ditambahkan ke wishlist!';
         }
         
-        if(request()->ajax()) {
-            return response()->json([
-                'status' => $status,
-                'message' => $message
-            ]);
-        }
-        
-        return Redirect::back()->with('success', $message);
+        return response()->json([
+            'status' => $status,
+            'message' => $message
+        ]);
     }
 
     public function destroy(Wishlist $wishlist)
