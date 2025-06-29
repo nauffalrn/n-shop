@@ -68,18 +68,6 @@
                                 <h5 class="text-primary mb-0">
                                     Rp {{ number_format($wishlist->product->price, 0, ',', '.') }}
                                 </h5>
-                                @if($wishlist->product->hasVariants())
-                                    <small class="text-muted">Mulai dari</small>
-                                @endif
-                            </div>
-
-                            <!-- Stock Status -->
-                            <div class="mb-3">
-                                @if($wishlist->product->stock > 0)
-                                    <span class="badge bg-success">Stok: {{ $wishlist->product->stock }}</span>
-                                @else
-                                    <span class="badge bg-danger">Stok Habis</span>
-                                @endif
                             </div>
 
                             <!-- Quick Add to Cart -->

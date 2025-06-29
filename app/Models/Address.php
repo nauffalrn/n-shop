@@ -15,6 +15,8 @@ class Address extends Model
         'phone',
         'address',
         'city',
+        'district', // Tambahkan field district
+        'province',
         'postal_code',
         'country'
     ];
@@ -22,5 +24,11 @@ class Address extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    
+    // Helper method untuk menampilkan kota/kabupaten
+    public function getCityOrDistrict()
+    {
+        return $this->city ?: $this->district;
     }
 }

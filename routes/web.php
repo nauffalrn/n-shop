@@ -11,6 +11,7 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PromoController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -36,6 +37,14 @@ Route::get('/home', function() {
     return redirect()->route('index_product');
 });
 
+// Shared routes between users and admins (authenticated users only)
+Route::middleware(['auth'])->group(function () {
+    // Order detail routes (accessible to both regular users and admins)
+    Route::get('/orders/{order}', [OrderController::class, 'show_order'])->name('show_order');
+    Route::post('/orders/{order}/payment', [OrderController::class, 'submit_payment_receipt'])->name('submit_payment_receipt');
+    Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm_payment'])->name('confirm_payment');
+});
+
 // USER ONLY Routes (hanya untuk user biasa, bukan admin)
 Route::middleware(['auth', 'UserOnly'])->group(function () {
     
@@ -49,11 +58,9 @@ Route::middleware(['auth', 'UserOnly'])->group(function () {
     Route::patch('/cart/{cart}', [CartController::class, 'update_cart'])->name('update_cart');
     Route::delete('/cart/{cart}', [CartController::class, 'delete_cart'])->name('delete_cart');
     
-    // Order Routes
+    // Order Routes (kecuali show_order yang sudah dipindahkan ke shared routes)
     Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout');
     Route::get('/orders', [OrderController::class, 'index_order'])->name('index_order');
-    Route::get('/orders/{order}', [OrderController::class, 'show_order'])->name('show_order');
-    Route::post('/orders/{order}/payment', [OrderController::class, 'submit_payment_receipt'])->name('submit_payment_receipt');
     
     // Wishlist Routes
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
@@ -66,7 +73,16 @@ Route::middleware(['auth', 'UserOnly'])->group(function () {
     // Review Routes
     Route::post('/product/{product}/review', [ReviewController::class, 'store'])->name('review.store');
     Route::delete('/review/{review}', [ReviewController::class, 'destroy'])->name('review.destroy');
+    
+    // Shipping Routes
+    Route::get('/select-shipping', [OrderController::class, 'selectShipping'])->name('select.shipping');
+    Route::post('/calculate-shipping', [OrderController::class, 'calculateShipping'])->name('calculate.shipping');
 });
+
+// Promo routes
+Route::post('/apply-promo', [CartController::class, 'applyPromo'])->name('apply_promo');
+Route::delete('/remove-promo', [CartController::class, 'removePromo'])->name('remove_promo');
+
 
 // ADMIN ONLY Routes (hanya untuk admin)
 Route::middleware(['auth', 'Admin'])->prefix('admin')->group(function () {
@@ -101,8 +117,11 @@ Route::middleware(['auth', 'Admin'])->prefix('admin')->group(function () {
     
     // Order Management (Admin)
     Route::get('/orders', [AdminController::class, 'orders'])->name('admin.orders');
-    Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm_payment'])->name('admin.confirm_payment');
+    Route::post('/orders/{order}/reject', [OrderController::class, 'rejectPayment'])->name('admin.reject_payment');
     
     // User Management
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+    
+    // Promo management
+    Route::resource('promos', PromoController::class, ['as' => 'admin']);
 });

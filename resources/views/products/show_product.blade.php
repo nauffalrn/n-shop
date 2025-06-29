@@ -9,9 +9,11 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('index_product') }}">Home</a></li>
-            @if($product->category)
+            @if($product->categories->isNotEmpty())
                 <li class="breadcrumb-item">
-                    <a href="{{ route('product.by_category', $product->category) }}">{{ $product->category->name }}</a>
+                    <a href="{{ route('product.by_category', $product->categories->first()) }}">
+                        {{ $product->categories->first()->name }}
+                    </a>
                 </li>
             @endif
             <li class="breadcrumb-item active">{{ $product->name }}</li>
@@ -71,12 +73,15 @@
                 <div class="card-body">
                     <!-- Product Name & Category dengan Wishlist -->
                     <div class="mb-3">
-                        @if($product->category)
-                            <a href="{{ route('product.by_category', $product->category) }}" 
-                               class="badge bg-primary mb-2 text-decoration-none category-badge-link">
-                                <i class="fas fa-tag me-1"></i>{{ $product->category->name }}
-                            </a>
-                        @endif
+                        <!-- Kategori Produk -->
+                        <div class="product-categories mb-3">
+                            <span class="text-muted">Kategori:</span>
+                            @foreach($product->categories as $index => $category)
+                                <a href="{{ route('product.by_category', $category) }}" class="badge rounded-pill bg-light text-dark me-1">
+                                    {{ $category->name }}
+                                </a>
+                            @endforeach
+                        </div>
                         
                         <!-- Nama Produk dan Wishlist sejajar -->
                         <div class="d-flex justify-content-between align-items-center">
@@ -192,11 +197,6 @@
                                     @endif
                                 </span>
                             </div>
-                            @if($product->weight)
-                                <div class="col-6">
-                                    <span>Berat: </span>{{ $product->weight }} gram <!-- Hapus strong/bold -->
-                                </div>
-                            @endif
                         </div>
                     </div>
 
@@ -256,6 +256,25 @@
                             <a href="{{ route('login') }}">Login</a> untuk menambahkan produk ke keranjang
                         </div>
                     @endauth
+
+                    <!-- Admin Actions - Edit & Delete Product -->
+                    @auth
+                        @if(auth()->user()->is_admin)
+                            <div class="admin-actions mb-4">
+                                <a href="{{ route('admin.edit_product', $product) }}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>Edit Produk
+                                </a>
+                                <form action="{{ route('admin.delete_product', $product) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger ms-2" 
+                                            onclick="return confirm('Yakin ingin menghapus produk ini?')">
+                                        <i class="fas fa-trash me-2"></i>Hapus Produk
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
+                    @endauth
                 </div>
             </div>
         </div>
@@ -291,12 +310,38 @@
                                     <h5>Deskripsi Produk</h5>
                                     <p>{{ $product->description ?: 'Tidak ada deskripsi tersedia.' }}</p>
                                 </div>
+                                <!-- Spesifikasi Produk -->
                                 <div class="col-lg-4">
                                     <h6>Spesifikasi</h6>
                                     <table class="table table-sm">
-                                        <tr><td>Kategori</td><td>{{ $product->category->name ?? '-' }}</td></tr>
-                                        <tr><td>Berat</td><td>{{ $product->weight ? $product->weight . ' gram' : '-' }}</td></tr>
-                                        <tr><td>Stok</td><td>{{ $product->stock }}</td></tr>
+                                        <tbody>
+                                            <tr>
+                                                <td>Kategori</td>
+                                                <td>
+                                                    @if($product->categories->count() > 0)
+                                                        <div class="d-flex flex-wrap gap-1">
+                                                            @foreach($product->categories as $category)
+                                                                <a href="{{ route('product.by_category', $category) }}" class="badge rounded-pill bg-light text-dark">
+                                                                    {{ $category->name }}
+                                                                </a>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @if($product->weight)
+                                                <tr>
+                                                    <td>Berat</td>
+                                                    <td>{{ number_format((float)$product->weight, 3, '.', '') }} kg</td>
+                                                </tr>
+                                            @endif
+                                            <tr>
+                                                <td>Stok</td>
+                                                <td>{{ $product->stock }}</td>
+                                            </tr>
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>

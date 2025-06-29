@@ -57,6 +57,13 @@
                                                 <span class="badge bg-secondary">{{ $cart->variant->getVariantName() }}</span>
                                             </div>
                                         @endif
+
+                                        <!-- Di dalam loop item keranjang, tambahkan informasi berat -->
+                                        <div class="product-meta">
+                                            <small class="d-block text-muted">
+                                                <i class="fas fa-weight me-1"></i>Berat: {{ number_format($cart->product->weight, 3) }} kg/item
+                                            </small>
+                                        </div>
                                     </div>
 
                                     <!-- Price -->
@@ -97,8 +104,8 @@
                                                 <button type="submit" class="btn btn-outline-danger btn-sm" 
                                                         onclick="return confirm('Yakin ingin menghapus item ini?')">
                                                     <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -115,50 +122,128 @@
                         <h5 class="mb-0">Ringkasan Pesanan</h5>
                     </div>
                     <div class="card-body">
+                        <!-- Subtotal -->
                         <div class="d-flex justify-content-between mb-3">
                             <span>Subtotal ({{ $carts->count() }} item)</span>
                             <span>Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
                         </div>
-                        
-                        <div class="d-flex justify-content-between mb-3">
-                            <span>Ongkos Kirim</span>
-                            <span class="text-muted">Dihitung saat checkout</span>
+
+                        <!-- Diskon jika ada -->
+                        @if(session('promo_id'))
+                        <div class="d-flex justify-content-between mb-3 text-success">
+                            <span>
+                                <i class="fas fa-tag me-1"></i>Diskon 
+                                <span class="badge bg-success">{{ $promo->code }}</span>
+                            </span>
+                            <span>- Rp {{ number_format($discount, 0, ',', '.') }}</span>
                         </div>
-                        
+                        @endif
+
+                        <!-- Ongkos Kirim (Estimasi) -->
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Estimasi Ongkos Kirim</span>
+                            <div>
+                                @if(Auth::user()->addresses()->exists())
+                                    @php
+                                        $address = Auth::user()->addresses()->first();
+                                        $location = '';
+                                        if($address->city) {
+                                            $location = 'Kota ' . $address->city;
+                                        } elseif($address->district) {
+                                            $location = 'Kabupaten ' . $address->district;
+                                        }
+                                        
+                                        // Hitung estimasi ongkir berdasarkan berat total
+                                        $totalWeight = $carts->sum(function($cart) {
+                                            return ($cart->product->weight ?? 0.1) * $cart->amount;
+                                        });
+                                        $shippingService = new \App\Services\ShippingService();
+                                        $shippingEstimate = $shippingService->calculate(
+                                            $address->province, 
+                                            $address->country, 
+                                            $totalWeight
+                                        );
+                                    @endphp
+                                    <span class="text-dark">Rp {{ number_format($shippingEstimate, 0, ',', '.') }}</span>
+                                    <small class="d-block text-muted">{{ $location }} ({{ number_format($totalWeight, 2) }} kg)</small>
+                                @else
+                                    <span class="text-primary" data-bs-toggle="tooltip" title="Tambahkan alamat pengiriman terlebih dahulu">
+                                        <i class="fas fa-map-marker-alt me-1"></i>Tambahkan alamat
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
                         <hr>
-                        
+
+                        <!-- Total -->
                         <div class="d-flex justify-content-between mb-4">
                             <strong>Total</strong>
-                            <strong class="text-primary fs-5">Rp {{ number_format($totalPrice, 0, ',', '.') }}</strong>
+                            <div class="text-end">
+                                @php
+                                    $shippingCost = $shippingCost ?? 0;
+                                    $finalTotal = $totalPrice - ($discount ?? 0) + $shippingCost;
+                                @endphp
+                                
+                                @if(session('promo_id'))
+                                    <span class="text-decoration-line-through text-muted">
+                                        Rp {{ number_format($totalPrice + $shippingCost, 0, ',', '.') }}
+                                    </span><br>
+                                    <strong class="text-primary fs-5">
+                                        Rp {{ number_format($finalTotal, 0, ',', '.') }}
+                                    </strong>
+                                @else
+                                    <strong class="text-primary fs-5">
+                                        Rp {{ number_format($finalTotal, 0, ',', '.') }}
+                                    </strong>
+                                @endif
+                            </div>
                         </div>
 
                         <!-- Checkout Button -->
-                        <form action="{{ route('checkout') }}" method="POST">
-                            @csrf
+                        <form action="{{ route('select.shipping') }}" method="GET">
                             <button type="submit" class="btn btn-primary w-100 btn-lg">
-                                <i class="fas fa-credit-card me-2"></i>Checkout
+                                <i class="fas fa-truck me-2"></i>Lanjut ke Pengiriman
                             </button>
                         </form>
 
-                        <!-- Promo Code -->
-                        <div class="mt-3">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Kode Promo">
-                                <button class="btn btn-outline-secondary" type="button">Terapkan</button>
-                            </div>
+                        <!-- Promo Code Section -->
+                        <div class="mt-3 mb-3">
+                            <h6 class="mb-2"><i class="fas fa-tag me-2"></i>Kode Promo</h6>
+                            
+                            @if(session('promo_id'))
+                                <div class="d-flex">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light" value="{{ $promo->code }}" disabled>
+                                        <form action="{{ url('/remove-promo') }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-outline-danger" type="submit">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                
+                                <div class="small text-success mt-2">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    {{ $promo->description }} - {{ $promo->getDiscountDescription() }}:
+                                    <strong>Rp {{ number_format($discount, 0, ',', '.') }}</strong>
+                                </div>
+                            @else
+                                <form action="{{ url('/apply-promo') }}" method="POST">
+                                    @csrf
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="promo_code" placeholder="Masukkan kode promo" required>
+                                        <button class="btn btn-outline-primary" type="submit">Terapkan</button>
+                                    </div>
+                                </form>
+                            @endif
+                            
+                            @error('promo_code')
+                                <div class="text-danger small mt-2">{{ $message }}</div>
+                            @enderror
                         </div>
-                    </div>
-                </div>
-
-                <!-- Shopping Tips -->
-                <div class="card card-custom mt-3">
-                    <div class="card-body">
-                        <h6><i class="fas fa-lightbulb me-2 text-warning"></i>Tips Belanja</h6>
-                        <ul class="list-unstyled small text-muted mb-0">
-                            <li><i class="fas fa-check text-success me-2"></i>Gratis ongkir min. pembelian Rp 100.000</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Garansi 100% uang kembali</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Customer service 24/7</li>
-                        </ul>
                     </div>
                 </div>
             </div>

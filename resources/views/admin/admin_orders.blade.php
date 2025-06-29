@@ -35,39 +35,29 @@
                                             <td>#{{ $order->id }}</td>
                                             <td>{{ $order->user->name }}</td>
                                             <td>
-                                                @php
-                                                    $total = $order->transactions->sum(function($t) {
-                                                        return $t->product->price * $t->umount;
-                                                    });
-                                                @endphp
-                                                Rp {{ number_format($total, 0, ',', '.') }}
+                                                Rp {{ number_format($order->getTotalAfterDiscount(), 0, ',', '.') }}
                                             </td>
                                             <td>
-                                                @if($order->is_paid)
+                                                @if($order->isConfirmed())
                                                     <span class="badge bg-success">Dibayar</span>
-                                                @elseif($order->payment_receipt)
+                                                @elseif($order->isAwaitingConfirmation())
                                                     <span class="badge bg-warning">Menunggu Konfirmasi</span>
+                                                @elseif($order->isRejected())
+                                                    <span class="badge bg-danger">Ditolak</span>
+                                                    <i class="fas fa-info-circle ms-1" data-bs-toggle="tooltip" 
+                                                       title="Alasan: {{ $order->rejection_reason }}"></i>
                                                 @else
-                                                    <span class="badge bg-danger">Belum Bayar</span>
+                                                    <span class="badge bg-secondary">Belum Bayar</span>
                                                 @endif
                                             </td>
                                             <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                                             <td>
                                                 <div class="btn-group" role="group">
-                                                    <a href="{{ route('show_order', $order) }}" 
-                                                       class="btn btn-sm btn-outline-info">
-                                                        <i class="fas fa-eye me-1"></i>Detail
-                                                    </a>
-                                                    
-                                                    @if($order->payment_receipt && !$order->is_paid)
-                                                        <form action="{{ route('admin.confirm_payment', $order) }}" 
-                                                              method="POST" class="d-inline">
-                                                            @csrf
-                                                            <button type="submit" class="btn btn-sm btn-success"
-                                                                    onclick="return confirm('Konfirmasi pembayaran pesanan ini?')">
-                                                                <i class="fas fa-check me-1"></i>Konfirmasi
-                                                            </button>
-                                                        </form>
+                                                    @if($order->isAwaitingConfirmation())
+                                                        <a href="{{ route('show_order', $order) }}" 
+                                                           class="btn btn-sm btn-warning">
+                                                            <i class="fas fa-check-circle me-1"></i>Periksa
+                                                        </a>
                                                     @endif
                                                 </div>
                                             </td>

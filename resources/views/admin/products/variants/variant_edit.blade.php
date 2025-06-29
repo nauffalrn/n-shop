@@ -20,32 +20,50 @@
                         @method('PATCH')
                         
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="size" class="form-label fw-semibold">
-                                        <i class="fas fa-ruler me-2"></i>Ukuran
+                                        <i class="fas fa-ruler me-2"></i>Ukuran (opsional)
                                     </label>
                                     <input type="text" class="form-control @error('size') is-invalid @enderror" 
                                            id="size" name="size" value="{{ old('size', $variant->size) }}" 
-                                           placeholder="S, M, L, XL" required>
+                                           placeholder="S, M, L, XL">
                                     @error('size')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="color" class="form-label fw-semibold">
-                                        <i class="fas fa-palette me-2"></i>Warna
+                                        <i class="fas fa-palette me-2"></i>Warna (opsional)
                                     </label>
                                     <input type="text" class="form-control @error('color') is-invalid @enderror" 
                                            id="color" name="color" value="{{ old('color', $variant->color) }}" 
-                                           placeholder="Merah, Biru, Hitam" required>
+                                           placeholder="Merah, Biru, Hitam">
                                     @error('color')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="type" class="form-label fw-semibold">
+                                        <i class="fas fa-tag me-2"></i>Tipe (opsional)
+                                    </label>
+                                    <input type="text" class="form-control @error('type') is-invalid @enderror" 
+                                           id="type" name="type" value="{{ old('type', $variant->type) }}" 
+                                           placeholder="Premium, Basic, Standard">
+                                    @error('type')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Info:</strong> Setidaknya salah satu dari Ukuran, Warna, atau Tipe harus diisi untuk membedakan variant.
                         </div>
 
                         <div class="row">

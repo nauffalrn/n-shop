@@ -19,6 +19,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     @stack('styles')
+    
+    <!-- Tambahkan ini untuk script yang perlu dimuat di head -->
+    @yield('head-scripts')
 </head>
 <body data-page="@yield('page-identifier', 'default')" class="@yield('body-class')">
     <!-- Navigation -->
@@ -31,16 +34,18 @@
                     <i class="fas fa-shopping-bag me-2"></i>N-Shop
                 </a>
 
-                <!-- Extended Search Bar -->
-                <div class="search-container-extended">
-                    <form action="{{ route('index_product') }}" method="GET" class="d-flex">
-                        <input type="text" name="search" class="search-input-extended" 
-                               placeholder="Cari produk..." value="{{ request('search') }}">
-                        <button class="btn btn-search" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
-                </div>
+                <!-- Extended Search Bar - Hide on login/register pages -->
+                @if(!Request::is('login') && !Request::is('register'))
+                    <div class="search-container-extended">
+                        <form action="{{ route('index_product') }}" method="GET" class="d-flex">
+                            <input type="text" name="search" class="search-input-extended" 
+                                   placeholder="Cari produk..." value="{{ request('search') }}">
+                            <button class="btn btn-search" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                @endif
             </div>
 
             <!-- Mobile Toggle -->
@@ -50,18 +55,20 @@
 
             <!-- Right Side: Navigation Links -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Mobile Search -->
-                <div class="d-lg-none mb-3 mt-2">
-                    <form action="{{ route('index_product') }}" method="GET">
-                        <div class="input-group">
-                            <input type="text" name="search" class="form-control search-input" 
-                                   placeholder="Cari produk..." value="{{ request('search') }}">
-                            <button class="btn btn-search" type="submit">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                <!-- Mobile Search - Hide on login/register pages -->
+                @if(!Request::is('login') && !Request::is('register'))
+                    <div class="d-lg-none mb-3 mt-2">
+                        <form action="{{ route('index_product') }}" method="GET">
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control search-input" 
+                                       placeholder="Cari produk..." value="{{ request('search') }}">
+                                <button class="btn btn-search" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                @endif
 
                 <!-- Navigation Links -->
                 <ul class="navbar-nav ms-auto">
@@ -116,7 +123,17 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admin.category.index') }}">
-                                    <i class="fas fa-tags me-1"></i>Kategori
+                                    <i class="fas fa-tags me-1"></i>Kelola Kategori
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.promos.index') }}">
+                                    <i class="fas fa-ticket-alt me-1"></i>Kelola Promo
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.users') }}">
+                                    <i class="fas fa-users me-1"></i>Kelola User
                                 </a>
                             </li>
                         @endif
@@ -183,27 +200,25 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main style="margin-top: 40px; min-height: calc(100vh - 200px);">
-        <!-- Alert Messages -->
+    <!-- Alert Messages -->
+    <div class="container mt-3">
         @if(session('success'))
-            <div class="container mt-3">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         @endif
 
         @if(session('error'))
-            <div class="container mt-3">
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         @endif
+    </div>
 
+    <!-- Main Content -->
+    <main style="margin-top: 40px; min-height: calc(100vh - 200px);">
         @yield('content')
     </main>
 
@@ -259,5 +274,16 @@
     
     <!-- Vite JS -->
     @vite(['resources/js/app.js'])
+
+    <!-- Tambahkan script debugging untuk memeriksa error -->
+    <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.error('JavaScript Error:', message, 'at', source, lineno, colno);
+        return false;
+    };
+
+    // Cek apakah fungsi rejectPayment tersedia
+    console.log('rejectPayment function available:', typeof window.rejectPayment === 'function');
+    </script>
 </body>
 </html>

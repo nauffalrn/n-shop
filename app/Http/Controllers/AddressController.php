@@ -31,9 +31,14 @@ class AddressController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'address' => 'required|string',
-            'city' => 'required|string|max:100',
+            'city' => 'required_without:district|nullable|string|max:100',
+            'district' => 'required_without:city|nullable|string|max:100',
+            'province' => 'required|string|max:100',
             'postal_code' => 'required|string|max:10',
             'country' => 'required|string|max:100'
+        ], [
+            'city.required_without' => 'Anda harus mengisi setidaknya Kota atau Kabupaten',
+            'district.required_without' => 'Anda harus mengisi setidaknya Kota atau Kabupaten',
         ]);
 
         Address::create([
@@ -42,6 +47,8 @@ class AddressController extends Controller
             'phone' => $request->phone,
             'address' => $request->address,
             'city' => $request->city,
+            'district' => $request->district,
+            'province' => $request->province,
             'postal_code' => $request->postal_code,
             'country' => $request->country
         ]);
@@ -55,7 +62,7 @@ class AddressController extends Controller
             return Redirect::route('address.index')->with('error', 'Akses ditolak!');
         }
 
-        return view('user.address.address_edit', compact('address')); // ✅ Sudah benar
+        return view('user.address.address_edit', compact('address'));
     }
 
     public function update(Request $request, Address $address)
@@ -69,9 +76,14 @@ class AddressController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'address' => 'required|string',
-            'city' => 'required|string|max:100',
+            'city' => 'required_without:district|nullable|string|max:100',
+            'district' => 'required_without:city|nullable|string|max:100',
+            'province' => 'required|string|max:100',
             'postal_code' => 'required|string|max:10',
             'country' => 'required|string|max:100'
+        ], [
+            'city.required_without' => 'Anda harus mengisi setidaknya Kota atau Kabupaten',
+            'district.required_without' => 'Anda harus mengisi setidaknya Kota atau Kabupaten',
         ]);
 
         $address->update([
@@ -79,6 +91,8 @@ class AddressController extends Controller
             'phone' => $request->phone,
             'address' => $request->address,
             'city' => $request->city,
+            'district' => $request->district,
+            'province' => $request->province,
             'postal_code' => $request->postal_code,
             'country' => $request->country
         ]);

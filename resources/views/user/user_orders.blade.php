@@ -38,7 +38,12 @@
                             <div class="row">
                                 <div class="col-md-8">
                                     <h6>Produk yang Dipesan:</h6>
+                                    @php $totalOrderAmount = 0; @endphp
                                     @foreach($order->transactions as $transaction)
+                                        @php 
+                                            $itemTotal = $transaction->product->price * $transaction->amount;
+                                            $totalOrderAmount += $itemTotal; 
+                                        @endphp
                                         <div class="d-flex align-items-center mb-2">
                                             @if($transaction->product->getMainImage())
                                                 <img src="{{ Storage::url($transaction->product->getMainImage()) }}" 
@@ -53,26 +58,25 @@
                                             <div>
                                                 <div class="fw-semibold">{{ $transaction->product->name }}</div>
                                                 <small class="text-muted">
-                                                    {{ $transaction->umount }} x Rp {{ number_format($transaction->product->price, 0, ',', '.') }}
+                                                    {{ $transaction->amount }} x Rp {{ number_format($transaction->product->price, 0, ',', '.') }}
                                                 </small>
                                             </div>
                                         </div>
                                     @endforeach
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="text-end">
-                                        @php
-                                            $total = 0;
-                                            foreach($order->transactions as $transaction) {
-                                                $total += $transaction->product->price * $transaction->umount;
-                                            }
-                                        @endphp
-                                        <div class="mb-2">
-                                            <strong>Total: Rp {{ number_format($total, 0, ',', '.') }}</strong>
+                                    <div class="card bg-light">
+                                        <div class="card-body p-3">
+                                            <div class="mb-2">
+                                                <strong class="d-block">Total Pembayaran:</strong>
+                                                <span class="text-primary fs-5">
+                                                    Rp {{ number_format($order->getTotalAfterDiscount(), 0, ',', '.') }}
+                                                </span>
+                                            </div>
+                                            <a href="{{ route('show_order', $order) }}" class="btn btn-primary btn-sm w-100">
+                                                <i class="fas fa-eye me-2"></i>Lihat Detail
+                                            </a>
                                         </div>
-                                        <a href="{{ route('show_order', $order) }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-eye me-2"></i>Detail
-                                        </a>
                                     </div>
                                 </div>
                             </div>

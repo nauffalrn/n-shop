@@ -65,12 +65,49 @@
                                     </label>
                                     <input type="text" class="form-control @error('city') is-invalid @enderror" 
                                            id="city" name="city" value="{{ old('city') }}" 
-                                           placeholder="Jakarta" required>
+                                           placeholder="Masukkan nama kota (jika berlokasi di kota)">
+                                    <small class="text-muted">Isi salah satu: Kota atau Kabupaten</small>
                                     @error('city')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="district" class="form-label fw-semibold">
+                                        <i class="fas fa-building me-2"></i>Kabupaten
+                                    </label>
+                                    <input type="text" class="form-control @error('district') is-invalid @enderror" 
+                                           id="district" name="district" value="{{ old('district') }}" 
+                                           placeholder="Masukkan nama kabupaten (jika berlokasi di kabupaten)">
+                                    <small class="text-muted">Isi salah satu: Kota atau Kabupaten</small>
+                                    @error('district')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="province" class="form-label fw-semibold">
+                                        <i class="fas fa-map me-2"></i>Provinsi
+                                    </label>
+                                    <select class="form-select @error('province') is-invalid @enderror" 
+                                            id="province" name="province" required>
+                                        <option value="">Pilih Provinsi</option>
+                                        @foreach(config('provinces.list') as $province)
+                                            <option value="{{ $province }}" {{ old('province') == $province ? 'selected' : '' }}>
+                                                {{ $province }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('province')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="postal_code" class="form-label fw-semibold">

@@ -13,9 +13,21 @@ class Category extends Model
         'name'
     ];
 
-    // Relationship ke products
-    public function products()
+    // Relasi one-to-many dengan Product (tetap ada untuk backward compatibility)
+    public function singleProducts()
     {
         return $this->hasMany(Product::class);
+    }
+
+    // Relasi many-to-many dengan Product (tambahan baru)
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'product_category');
+    }
+
+    // Helper method untuk menghitung jumlah produk
+    public function getProductsCountAttribute()
+    {
+        return $this->products()->count();
     }
 }

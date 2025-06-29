@@ -112,41 +112,6 @@
         <div class="col-lg-9 pe-4 ps-2 pt-0">
             <!-- Category/Search Header -->
             <div class="mb-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="mb-1">
-                            @if(isset($category))
-                                <i class="fas fa-tag me-2 text-primary"></i>{{ $category->name }}
-                            @elseif(request('search'))
-                                <i class="fas fa-search me-2 text-primary"></i>Hasil pencarian "{{ request('search') }}"
-                            @else
-                                <i class="fas fa-th-large me-2 text-primary"></i>Semua Produk
-                            @endif
-                        </h4>
-                        <p class="text-muted mb-0">
-                            Ditemukan {{ $products->total() }} produk
-                            @if(isset($category))
-                                dalam kategori {{ $category->name }}
-                            @endif
-                        </p>
-                    </div>
-                    
-                    <!-- Quick Sort Options -->
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" 
-                                data-bs-toggle="dropdown">
-                            <i class="fas fa-sort me-1"></i>Urutkan
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ request()->fullUrlWithQuery(['sort' => '']) }}">Default</a></li>
-                            <li><a class="dropdown-item" href="{{ request()->fullUrlWithQuery(['sort' => 'price_low']) }}">Harga Terendah</a></li>
-                            <li><a class="dropdown-item" href="{{ request()->fullUrlWithQuery(['sort' => 'price_high']) }}">Harga Tertinggi</a></li>
-                            <li><a class="dropdown-item" href="{{ request()->fullUrlWithQuery(['sort' => 'rating']) }}">Rating Tertinggi</a></li>
-                            <li><a class="dropdown-item" href="{{ request()->fullUrlWithQuery(['sort' => 'newest']) }}">Terbaru</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
                 <!-- Active Filters -->
                 @if(request()->hasAny(['category_id', 'min_price', 'max_price', 'sort', 'search']) || isset($category))
                     <div class="mt-3">
@@ -257,18 +222,6 @@
                                     <!-- Price -->
                                     <div class="mb-3">
                                         <h5 class="text-primary mb-0">Rp {{ number_format($product->price, 0, ',', '.') }}</h5>
-                                        @if($product->hasVariants())
-                                            <small class="text-muted">Mulai dari</small>
-                                        @endif
-                                    </div>
-
-                                    <!-- Stock Status -->
-                                    <div class="mb-3">
-                                        @if($product->stock > 0)
-                                            <span class="badge bg-success">Stok: {{ $product->stock }}</span>
-                                        @else
-                                            <span class="badge bg-danger">Stok Habis</span>
-                                        @endif
                                     </div>
 
                                     <!-- Quick Add to Cart -->
@@ -291,8 +244,8 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="d-flex justify-content-center">
-                    {{ $products->appends(request()->query())->links() }}
+                <div class="pagination-container">
+                    {{ $products->appends(request()->query())->links('products.pagination') }}
                 </div>
             @else
                 <div class="text-center py-5">

@@ -60,10 +60,25 @@
                                     <span class="ms-4">{{ $address->address }}</span>
                                 </div>
                                 <div class="row">
+                                    @if($address->city)
                                     <div class="col-6">
                                         <i class="fas fa-city me-2 text-muted"></i>
                                         <strong>Kota:</strong> {{ $address->city }}
                                     </div>
+                                    @endif
+                                    
+                                    @if($address->district)
+                                    <div class="col-6">
+                                        <i class="fas fa-building me-2 text-muted"></i>
+                                        <strong>Kabupaten:</strong> {{ $address->district }}
+                                    </div>
+                                    @endif
+                                    
+                                    <div class="col-6">
+                                        <i class="fas fa-map me-2 text-muted"></i>
+                                        <strong>Provinsi:</strong> {{ $address->province }}
+                                    </div>
+                                    
                                     <div class="col-6">
                                         <i class="fas fa-mail-bulk me-2 text-muted"></i>
                                         <strong>Kode Pos:</strong> {{ $address->postal_code }}

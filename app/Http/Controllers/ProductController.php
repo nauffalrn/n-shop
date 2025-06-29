@@ -21,9 +21,10 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'description' => 'required',
-            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category_id' => 'required|exists:categories,id',
-            'weight' => 'nullable|numeric'
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'categories' => 'required|array',
+            'categories.*' => 'exists:categories,id',
+            'weight' => 'required|numeric' // Ubah menjadi required
         ]);
 
         $imagePaths = [];
@@ -35,22 +36,26 @@ class ProductController extends Controller
             }
         }
 
-        Product::create([
+        // Buat produk baru
+        $product = Product::create([
             'name' => $request->name,
             'price' => $request->price,
             'stock' => $request->stock,
             'description' => $request->description,
             'images' => $imagePaths,
-            'category_id' => $request->category_id,
-            'weight' => $request->weight
+            'weight' => $request->weight // Langsung ambil dari request
         ]);
+        
+        // Menambahkan kategori
+        $product->categories()->attach($request->categories);
 
-        return Redirect::route('admin.create_product')->with('success', 'Produk berhasil ditambahkan!'); // Fixed route
+        return redirect()->route('admin.edit_product', $product)->with('success', 'Produk berhasil ditambahkan!');
     }
 
     public function index_product(Request $request)
     {
-        $query = Product::with(['category', 'reviews']);
+        // Query dasar
+        $query = Product::with(['categories', 'reviews']);
         
         // Search
         if ($request->search) {
@@ -60,7 +65,9 @@ class ProductController extends Controller
         
         // Filter by category
         if ($request->category_id) {
-            $query->where('category_id', $request->category_id);
+            $query->whereHas('categories', function($q) use ($request) {
+                $q->where('categories.id', $request->category_id);
+            });
         }
         
         // Filter by price range
@@ -90,9 +97,9 @@ class ProductController extends Controller
         }
         
         $products = $query->paginate(12);
-        $categories = \App\Models\Category::withCount('products')->get();
+        $categories = \App\Models\Category::all();
         
-        return view('products.index_product', compact('products', 'categories')); // ✅ Sudah benar
+        return view('products.index_product', compact('products', 'categories'));
     }
 
     public function show_product(Product $product)
@@ -116,15 +123,15 @@ class ProductController extends Controller
                                     ->get();
             }
 
-            return view('products.show_product', compact('product', 'relatedProducts')); // ✅ Sudah benar
+            return view('products.show_product', compact('product', 'relatedProducts'));
         } catch (\Exception $e) {
             return redirect()->route('index_product')->with('error', 'Produk tidak ditemukan!');
         }
     }
 
-    public function edit_prpoduct(Product $product){
+    public function edit_product(Product $product){
         $categories = Category::all();
-        return view('admin.products.edit_product', compact('product', 'categories')); // ✅ Sudah benar
+        return view('admin.products.edit_product', compact('product', 'categories'));
     }
 
     public function update_product(Product $product, Request $request){
@@ -134,22 +141,16 @@ class ProductController extends Controller
             'stock' => 'required|integer',
             'description' => 'required',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category_id' => 'required|exists:categories,id',
-            'weight' => 'nullable|numeric'
+            'categories' => 'required|array',
+            'categories.*' => 'exists:categories,id',
+            'weight' => 'required|numeric' // Ubah menjadi required
         ]);
 
-        $imagePaths = $product->images ?? [];
+        // Dapatkan gambar yang sudah ada
+        $imagePaths = $request->input('existing_images', []);
         
+        // Upload gambar baru jika ada
         if($request->hasFile('images')) {
-            // Hapus gambar lama
-            if($product->images) {
-                foreach($product->images as $oldImage) {
-                    Storage::disk('local')->delete('public/' . $oldImage);
-                }
-            }
-            
-            // Upload gambar baru
-            $imagePaths = [];
             foreach($request->file('images') as $image) {
                 $path = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                 Storage::disk('local')->put('public/' . $path, file_get_contents($image));
@@ -157,17 +158,20 @@ class ProductController extends Controller
             }
         }
 
+        // Update produk
         $product->update([
             'name' => $request->name,
             'price' => $request->price,
             'stock' => $request->stock,
             'description' => $request->description,
             'images' => $imagePaths,
-            'category_id' => $request->category_id,
-            'weight' => $request->weight
+            'weight' => $request->weight // Langsung ambil dari request
         ]);
 
-        return Redirect::route('show_product', $product)->with('success', 'Produk berhasil diupdate!');
+        // Update kategori
+        $product->categories()->sync($request->categories);
+
+        return redirect()->route('show_product', $product)->with('success', 'Produk berhasil diupdate!');
     }
 
     public function delete_product(Product $product){
@@ -184,8 +188,10 @@ class ProductController extends Controller
     
     // Method untuk filter berdasarkan kategori
     public function by_category(Category $category) {
-        // Build query dengan filter kategori
-        $query = Product::where('category_id', $category->id);
+        // Build query dengan filter kategori menggunakan whereHas
+        $query = Product::whereHas('categories', function($q) use ($category) {
+            $q->where('categories.id', $category->id);
+        });
         
         // Apply additional filters if exist
         if (request('min_price')) {
@@ -215,7 +221,7 @@ class ProductController extends Controller
         }
         
         $products = $query->paginate(12);
-        $categories = Category::withCount('products')->get();
+        $categories = Category::all();
         
         return view('products.index_product', compact('products', 'categories', 'category'));
     }

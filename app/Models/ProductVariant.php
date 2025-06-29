@@ -14,7 +14,8 @@ class ProductVariant extends Model
         'size',
         'price',
         'stock',
-        'color'
+        'color',
+        'type'  // Tambahkan field baru
     ];
 
     public function product()
@@ -30,7 +31,16 @@ class ProductVariant extends Model
     // Helper method untuk mendapatkan nama variant
     public function getVariantName()
     {
-        return $this->size . ' - ' . $this->color;
+        if ($this->type && !$this->size && !$this->color) {
+            return $this->type;
+        }
+        
+        $parts = [];
+        if ($this->size) $parts[] = $this->size;
+        if ($this->color) $parts[] = $this->color;
+        if ($this->type) $parts[] = $this->type;
+        
+        return !empty($parts) ? implode(' - ', $parts) : 'Default';
     }
 
     // Helper method untuk cek apakah variant tersedia

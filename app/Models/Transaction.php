@@ -10,9 +10,9 @@ class Transaction extends Model
     use HasFactory;
 
     protected $fillable = [
+        'amount', // Ubah dari 'umount' menjadi 'amount'
         'order_id',
-        'product_id',
-        'umount',
+        'product_id'
     ];
 
     public function order()

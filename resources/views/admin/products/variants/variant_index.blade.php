@@ -32,6 +32,7 @@
                                 <th>ID</th>
                                 <th>Ukuran</th>
                                 <th>Warna</th>
+                                <th>Tipe</th>
                                 <th>Harga</th>
                                 <th>Stok</th>
                                 <th>Status</th>
@@ -43,10 +44,25 @@
                                 <tr>
                                     <td>{{ $variant->id }}</td>
                                     <td>
-                                        <span class="badge bg-secondary">{{ $variant->size }}</span>
+                                        @if($variant->size)
+                                            <span class="badge bg-secondary">{{ $variant->size }}</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                     <td>
-                                        <span class="badge bg-info">{{ $variant->color }}</span>
+                                        @if($variant->color)
+                                            <span class="badge bg-info">{{ $variant->color }}</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($variant->type)
+                                            <span class="badge bg-primary">{{ $variant->type }}</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                     <td>
                                         <strong>Rp {{ number_format($variant->price, 0, ',', '.') }}</strong>

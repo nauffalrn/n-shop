@@ -66,7 +66,7 @@ class AdminController extends Controller
                   ->get()
                   ->sum(function($order) {
                       return $order->transactions->sum(function($transaction) {
-                          return $transaction->product->price * $transaction->umount;
+                          return $transaction->product->price * $transaction->amount; 
                       });
                   });
     }

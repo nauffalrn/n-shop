@@ -35,20 +35,22 @@
                                     </small>
                                 </div>
                                 <div class="col-md-6 text-md-end">
-                                    @if($order->is_paid)
+                                    @if($order->isConfirmed())
                                         <span class="badge bg-success">
                                             <i class="fas fa-check-circle me-1"></i>Lunas
                                         </span>
+                                    @elseif($order->isAwaitingConfirmation())
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock me-1"></i>Menunggu Konfirmasi
+                                        </span>
+                                    @elseif($order->isRejected())
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>Pembayaran Ditolak
+                                        </span>
                                     @else
-                                        @if($order->payment_receipt)
-                                            <span class="badge bg-warning">
-                                                <i class="fas fa-clock me-1"></i>Menunggu Konfirmasi
-                                            </span>
-                                        @else
-                                            <span class="badge bg-danger">
-                                                <i class="fas fa-times-circle me-1"></i>Belum Bayar
-                                            </span>
-                                        @endif
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-exclamation-circle me-1"></i>Belum Bayar
+                                        </span>
                                     @endif
                                 </div>
                             </div>
@@ -71,7 +73,11 @@
                                     <h6 class="mb-3">Item Pesanan:</h6>
                                     @php $totalAmount = 0; @endphp
                                     @foreach($order->transactions as $transaction)
-                                        @php $totalAmount += $transaction->product->price * $transaction->umount; @endphp
+                                        @php 
+                                            // Menggunakan amount, bukan umount
+                                            $itemTotal = $transaction->product->price * $transaction->amount;
+                                            $totalAmount += $itemTotal; 
+                                        @endphp
                                         <div class="d-flex align-items-center mb-3">
                                             @if($transaction->product->getMainImage())
                                                 <img src="{{ Storage::url($transaction->product->getMainImage()) }}" 
@@ -86,11 +92,11 @@
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-1">{{ $transaction->product->name }}</h6>
                                                 <small class="text-muted">
-                                                    {{ $transaction->umount }} x Rp {{ number_format($transaction->product->price, 0, ',', '.') }}
+                                                    {{ $transaction->amount }} x Rp {{ number_format($transaction->product->price, 0, ',', '.') }}
                                                 </small>
                                             </div>
                                             <div class="text-end">
-                                                <strong>Rp {{ number_format($transaction->product->price * $transaction->umount, 0, ',', '.') }}</strong>
+                                                <strong>Rp {{ number_format($itemTotal, 0, ',', '.') }}</strong>
                                             </div>
                                         </div>
                                     @endforeach
@@ -105,12 +111,18 @@
                                             </div>
                                             <div class="d-flex justify-content-between mb-2">
                                                 <span>Ongkir:</span>
-                                                <span class="text-muted">Gratis</span>
+                                                <span>Rp {{ number_format($order->shipping_cost, 0, ',', '.') }}</span>
                                             </div>
+                                            @if($order->discount > 0)
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Diskon:</span>
+                                                <span class="text-success">- Rp {{ number_format($order->discount, 0, ',', '.') }}</span>
+                                            </div>
+                                            @endif
                                             <hr>
                                             <div class="d-flex justify-content-between">
                                                 <strong>Total:</strong>
-                                                <strong class="text-primary">Rp {{ number_format($totalAmount, 0, ',', '.') }}</strong>
+                                                <strong class="text-primary">Rp {{ number_format($order->getTotalAfterDiscount(), 0, ',', '.') }}</strong>
                                             </div>
                                         </div>
                                     </div>
@@ -125,22 +137,21 @@
                                     </a>
                                 </div>
                                 <div>
-                                    @if(!$order->is_paid && !$order->payment_receipt)
-                                        <!-- Belum upload bukti pembayaran -->
+                                    @if($order->isPending())
                                         <span class="text-muted small">Silakan upload bukti pembayaran</span>
-                                    @elseif(!$order->is_paid && $order->payment_receipt)
+                                    @elseif($order->isAwaitingConfirmation())
                                         <!-- Sudah upload, menunggu konfirmasi admin -->
                                         @if(auth()->user()->is_admin)
-                                            <form action="{{ route('admin.confirm_payment', $order) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-sm" 
-                                                        onclick="return confirm('Konfirmasi pembayaran?')">
-                                                    <i class="fas fa-check me-2"></i>Konfirmasi Pembayaran
-                                                </button>
-                                            </form>
+                                            <a href="{{ route('show_order', $order) }}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-check-circle me-2"></i>Periksa Bukti Pembayaran
+                                            </a>
                                         @else
                                             <span class="text-warning small">Menunggu konfirmasi admin</span>
                                         @endif
+                                    @elseif($order->isRejected())
+                                        <span class="text-danger small">
+                                            <i class="fas fa-times-circle me-1"></i>Pembayaran ditolak - Lihat detail
+                                        </span>
                                     @else
                                         <!-- Sudah lunas -->
                                         <span class="text-success small">

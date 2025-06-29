@@ -492,3 +492,100 @@
     opacity: 0.7;
     cursor: wait;
 }
+
+/* Kategori badge pada halaman detail produk */
+.product-detail-page .badge.bg-light.text-dark {
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 5px 10px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+.product-detail-page .badge.bg-light.text-dark:hover {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Align vertical untuk sel tabel pada spesifikasi produk */
+.product-detail-page .table td {
+    vertical-align: middle;
+    padding: 10px 15px;
+}
+
+/* Kategori badge container */
+.product-detail-page .d-flex.flex-wrap.gap-1 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+/* Pagination styling */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.pagination .page-item {
+    margin: 0;
+}
+
+.pagination .page-item .page-link {
+    border: none;
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #444;
+    font-weight: 500;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.pagination .page-item .page-link:hover:not(.disabled) {
+    background-color: #f0f0f0;
+    color: var(--primary-color);
+    z-index: 1;
+}
+
+.pagination .page-item.disabled .page-link {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Styling untuk tombol next/prev */
+.pagination .page-item .page-link.prev-next {
+    background-color: #f8f9fa;
+    font-size: 1rem;
+}
+
+/* Responsif untuk mobile */
+@media (max-width: 576px) {
+    .pagination .page-item .page-link {
+        min-width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+}
